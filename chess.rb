@@ -10,45 +10,20 @@ class ChessPiece
     @board = board
   end
 
+  def move!(endpoint)
+    @position = endpoint if valid_move?(endpoint)
+  end
   #The below methods don't work with knights
   def valid_move?(endpoint)
-    valid_endpoint?(endpoint) && empty_path?(endpoint) && in_range?(endpoint)
-  end
-
-  def in_range? #Restricted by subclasses
     true
   end
 
-  def valid_endpoint?(endpoint)
-    endpoint_piece = @board.what_is_at(endpoint)
-    #board needs a method that takes position and returns piece there
-    endpoint_piece.nil? || endpoint_piece.color != @color
-  end
 
-  def empty_path?(endpoint)
-    path = path(endpoint)
-    path.all?{|pos| @board.what_is_at(pos).nil?}
-  end
-
-  def path(endpoint)
-    path = []
-    y1, x1 = @position
-    y2, x2 = endpoint
-    step = [y2 - y1, x2 - x1]
-    magnitude = step.find {|substep| substep != 0}.abs
-
-    step.map!{ |substep| substep / magnitude}
-    (magnitude - 1).times do |step_size|
-      path << [y1 + (step_size + 1) * step[0], x1 + (step_size + 1) * step[1]]
-    end
-
-    path
-  end
 
 end
 
 class Queen < ChessPiece
-  def in_range?(endpoint)
+  def valid_move?(endpoint)
     y1, x1 = @position
 
     STEPS.any? do |step|
@@ -61,6 +36,7 @@ class Queen < ChessPiece
 end
 
 class Board
+  SIZE = 8
   def initialize
     spawn_pieces!
   end
@@ -77,5 +53,37 @@ class Board
     end
   end
 
+  def coord_on_board?(coord)
+    y, x = coord
+    y.between?(0, SIZE - 1) && x.between?(0, SIZE - 1)
+  end
+
+  def valid_endpoint?(color, endpoint)
+    endpoint_piece = what_is_at(endpoint)
+    endpoint_piece.nil? || endpoint_piece.color != color
+  end
+
+  def empty_path?(startpoint, endpoint)
+    path = path(startpoint, endpoint)
+    path.all?{|pos| what_is_at(pos).nil?}
+  end
+
+  def path(startpoint, endpoint)
+    path = []
+    y1, x1 = startpoint
+    y2, x2 = endpoint
+    step = [y2 - y1, x2 - x1]
+    unless step.include?(0) || step[0].abs == step[1].abs
+      raise ArgumentError.new "Path must call horiz, vert, or diagonal line"
+    end
+    magnitude = step.find {|substep| substep != 0}.abs
+
+    step.map!{ |substep| substep / magnitude}
+    (magnitude - 1).times do |step_size|
+      path << [y1 + (step_size + 1) * step[0], x1 + (step_size + 1) * step[1]]
+    end
+
+    path
+  end
 
 end
