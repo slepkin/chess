@@ -53,14 +53,19 @@ class Board
   def display_board
     display = (0...SIZE).map do |i|
       (0...SIZE).map do |j|
-        object_there = what_is_at([i,j])
-        object_there ? object_there.to_s : "▢"
+        object_there = what_is_at([i , j])
+        object_there ? object_there.to_s : " "
       end
     end
-
-    display.each do |row|
-      puts row.join("  ")
+    #Yeah, I know it's a mess. Feel free to do better:
+    print "   "
+    ("a".."h").each{|letter| print " #{letter}  "}
+    puts "\n  ┌"+ "───┬" * 7 + "───┐"
+    display.each_with_index do |row,i|
+      puts "#{i+1} │ " + row.join(" │ ") + " │"
+      puts "  ├" + "───┼" * 7 + "───┤" unless i == 7
     end
+    puts "  └"+ "───┴" * 7 + "───┘"
     nil
   end
 
@@ -95,15 +100,16 @@ class Board
   end
 
   def path(startpoint, endpoint)
-
     path = []
     y1, x1 = startpoint
     y2, x2 = endpoint
     step = [y2 - y1, x2 - x1]
+
     unless step.include?(0) || step[0].abs == step[1].abs
       #p "Argument raised"
       raise ArgumentError.new "Path must call horiz, vert, or diagonal line"
     end
+
     magnitude = step.find {|substep| substep != 0}.abs
 
     step.map!{ |substep| substep / magnitude}
@@ -112,39 +118,6 @@ class Board
     end
 
     path
-
-  end
-
-  def convert_to_unicode(piece)
-    color = piece ? piece.color : nil
-    case [piece.class, color]
-    when [Queen, :white]
-      "♕"
-    when [Queen, :black]
-      "♛"
-    when [Rook, :white]
-      "♖"
-    when [Rook, :black]
-      "♜"
-    when [Bishop, :white]
-      "♗"
-    when [Bishop, :black]
-      "♝"
-    when [King, :white]
-      "♔"
-    when [King, :black]
-      "♚"
-    when [Knight, :white]
-      "♘"
-    when [Knight, :black]
-      "♞"
-    when [Pawn, :white]
-      "♙"
-    when [Pawn, :black]
-      "♟"
-    when [NilClass, nil]
-      "_"# "□"
-    end
   end
 
   def in_check?(king_color)
