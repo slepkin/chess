@@ -2,9 +2,7 @@ require 'set'
 
 class ChessPiece
   attr_reader :color, :position
-  STEPS = (-1..1).flat_map do |i|
-    (-1..1).map{|j| [i,j]}
-  end - [[0,0]]
+
 
   def initialize(position,color,board)
     @position = position
@@ -25,6 +23,10 @@ class ChessPiece
 end
 
 class Queen < ChessPiece
+  STEPS = (-1..1).flat_map do |i|
+    (-1..1).map{|j| [i,j]}
+  end - [[0,0]]
+
   def valid_move?(endpoint)
     y1, x1 = @position
 
@@ -33,6 +35,51 @@ class Queen < ChessPiece
       (1...8).any? do |step_size| #if you want start to be in range, add 0
         [y1 + step_size * dy, x1 + step_size * dx] == endpoint
       end
+    end
+  end
+end
+
+class Rook < ChessPiece
+  STEPS = [[1,0],[0,1],[-1,0],[0,-1]]
+
+  def valid_move?(endpoint)
+    y1, x1 = @position
+
+    STEPS.any? do |step|
+      dy, dx = step
+      (1...8).any? do |step_size| #if you want start to be in range, add 0
+        [y1 + step_size * dy, x1 + step_size * dx] == endpoint
+      end
+    end
+  end
+end
+
+class Bishop < ChessPiece
+  STEPS = [[1,1],[-1,1],[-1,1],[1,-1]]
+
+  def valid_move?(endpoint)
+    y1, x1 = @position
+
+    STEPS.any? do |step|
+      dy, dx = step
+      (1...8).any? do |step_size| #if you want start to be in range, add 0
+        [y1 + step_size * dy, x1 + step_size * dx] == endpoint
+      end
+    end
+  end
+end
+
+class King < ChessPiece
+  STEPS = (-1..1).flat_map do |i|
+    (-1..1).map{|j| [i,j]}
+  end - [[0,0]]
+
+  def valid_move?(endpoint)
+    y1, x1 = @position
+
+    STEPS.any? do |step|
+      dy, dx = step
+      [y1 + dy, x1 + dx] == endpoint
     end
   end
 end
@@ -49,8 +96,18 @@ class Board
 
   def spawn_pieces!
     @pieces = Set.new
-    8.times {|i| @pieces << Queen.new([7,i], :white, self)}
-    8.times {|i| @pieces << Queen.new([0,i], :black, self)}
+    @pieces << Queen.new([7,3], :white, self)
+    @pieces << Queen.new([0,3], :black, self)
+    @pieces << King.new([7,4], :white, self)
+    @pieces << King.new([0,4], :black, self)
+    @pieces << Bishop.new([7,2], :white, self)
+    @pieces << Bishop.new([7,5], :white, self)
+    @pieces << Bishop.new([0,2], :black, self)
+    @pieces << Bishop.new([0,5], :black, self)
+    @pieces << Rook.new([7,0], :white, self)
+    @pieces << Rook.new([7,7], :white, self)
+    @pieces << Rook.new([0,0], :black, self)
+    @pieces << Rook.new([0,7], :black, self)
   end
 
   def move_from_to(startpoint, endpoint)
@@ -78,7 +135,7 @@ class Board
     display.each do |row|
       puts row.join("  ")
     end
-
+    nil
   end
 
   private
@@ -132,6 +189,18 @@ class Board
       "Q"# "♕"
     when [Queen, :black]
       "q"#  "♛"
+    when [Rook, :white]
+      "R"# "♕"
+    when [Rook, :black]
+      "r"#  "♛"
+    when [Bishop, :white]
+      "B"# "♕"
+    when [Bishop, :black]
+      "b"#  "♛"
+    when [King, :white]
+      "K"# "♕"
+    when [King, :black]
+      "k"#  "♛"
     when [NilClass, nil]
       "_"# "□"
     end
