@@ -47,6 +47,14 @@ class Board
     8.times {|i| @pieces << Queen.new([0,i], :black, self)}
   end
 
+  def move_from_to(startpoint, endpoint)
+    piece = what_is_at(startpoint)
+    if valid_endpoint?(piece.color, endpoint) && \
+      (piece.is_a?(Knight) || empty_path(startpoint,endpoint))
+      piece.move!(endpoint)
+    end
+  end
+
   def what_is_at(pos)
     @pieces.find do |piece|
       piece.position == pos
@@ -57,6 +65,8 @@ class Board
     y, x = coord
     y.between?(0, SIZE - 1) && x.between?(0, SIZE - 1)
   end
+
+  def kill? #KILLLLL
 
   def valid_endpoint?(color, endpoint)
     endpoint_piece = what_is_at(endpoint)
