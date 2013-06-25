@@ -1,7 +1,8 @@
 # encoding: UTF-8
 
 class ChessPiece
-  attr_reader :color, :position
+  attr_accessor :position
+  attr_reader :color
 
   def initialize(position,color,board)
     @position = position
@@ -32,13 +33,18 @@ class ChessPiece
 end
 
 class Rider < ChessPiece #A
-  @@steps = (-1..1).flat_map do |i|
+
+  def initialize(position,color,board)
+    super(position,color,board)
+    @steps = (-1..1).flat_map do |i|
     (-1..1).map{|j| [i,j]}
-  end - [[0,0]]
+    end - [[0,0]]
+  end
+
   def valid_move?(endpoint)
     y1, x1 = @position
 
-    @@steps.any? do |step|
+    @steps.any? do |step|
       dy, dx = step
       (1...8).any? do |step_size| #if you want start to be in range, add 0
         [y1 + step_size * dy, x1 + step_size * dx] == endpoint
@@ -48,9 +54,13 @@ class Rider < ChessPiece #A
 end
 
 class Queen < Rider
-  @@steps = (-1..1).flat_map do |i|
-    (-1..1).map{|j| [i,j]}
-  end - [[0,0]]
+
+  def initialize(position,color,board)
+    super(position,color,board)
+    @steps = (-1..1).flat_map do |i|
+      (-1..1).map{|j| [i,j]}
+    end - [[0,0]]
+  end
 
   def to_s
     @color == :white ? "♕" : "♛"
@@ -59,7 +69,11 @@ class Queen < Rider
 end
 
 class Rook < Rider
-  @@steps = [[1,0],[0,1],[-1,0],[0,-1]]
+
+  def initialize(position,color,board)
+    super(position,color,board)
+    @steps = [[1,0],[0,1],[-1,0],[0,-1]]
+  end
 
   def to_s
     @color == :white ? "♖" : "♜"
@@ -67,7 +81,11 @@ class Rook < Rider
 end
 
 class Bishop < Rider
-  @@steps = [[1,1],[-1,1],[-1,-1],[1,-1]]
+
+  def initialize(position,color,board)
+    super(position,color,board)
+    @steps = [[1,1],[-1,1],[-1,-1],[1,-1]]
+  end
 
   def to_s
     @color == :white ? "♗" : "♝"

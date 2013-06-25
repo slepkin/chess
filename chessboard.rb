@@ -34,12 +34,15 @@ class Board
 
   end
 
-  def move_piece(startpoint, endpoint)
+  def move_piece(startpoint, endpoint, color)
+    debugger
     piece = what_is_at(startpoint)
     end_piece = what_is_at(endpoint)
     #puts "Not empty or opposite" unless empty_or_opposite_color?(piece.color, endpoint)
     if empty_or_opposite_color?(piece.color, endpoint) && \
-      (piece.is_a?(Knight) || empty_path?(startpoint,endpoint))
+        (piece.is_a?(Knight) || empty_path?(startpoint,endpoint))&& \
+        !causes_check?(startpoint, endpoint, color)
+
       piece.move(endpoint) && kill(end_piece)
     end
   end
@@ -125,9 +128,17 @@ class Board
     other_color = king_color == :black ? :white : :black
     @pieces.select{|piece| piece.color == other_color}.any? do |piece|
       temp_board = self.dup
-      temp_board.move_piece(piece.position, k_pos)
+      temp_board.move_piece(piece.position, k_pos, piece.color)
       !temp_board.pieces.any?{|x| x.class == King && x.color == king_color}
     end
+  end
+
+  def causes_check?(startpoint, endpoint, color)
+    temp_board = self.dup
+    temp_piece = temp_board.what_is_at(startpoint)
+    kill(temp_board.what_is_at(endpoint))
+    temp_piece.position = endpoint
+    temp_board.in_check?(color)
   end
 
   def in_checkmate?(king_color)
@@ -135,7 +146,7 @@ class Board
       piece.possible_moves.all? do |possible_move|
         #create piece-level possible_moves method
         temp_board = self.dup
-        temp_board.move_piece(piece.position, possible_move)
+        temp_board.move_piece(piece.position, possible_move, piece.color)
         temp_board.in_check?(king_color)
       end
     end
