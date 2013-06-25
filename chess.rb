@@ -1,3 +1,5 @@
+require 'set'
+
 class ChessPiece
   attr_reader :color, :position
   STEPS = (-1..1).flat_map do |i|
@@ -35,6 +37,10 @@ class Queen < ChessPiece
   end
 end
 
+class Knight < ChessPiece
+
+end
+
 class Board
   SIZE = 8
   def initialize
@@ -42,15 +48,16 @@ class Board
   end
 
   def spawn_pieces!
-    @pieces = []
+    @pieces = Set.new
     8.times {|i| @pieces << Queen.new([7,i], :white, self)}
     8.times {|i| @pieces << Queen.new([0,i], :black, self)}
   end
 
   def move_from_to(startpoint, endpoint)
     piece = what_is_at(startpoint)
-    if valid_endpoint?(piece.color, endpoint) && \
-      (piece.is_a?(Knight) || empty_path(startpoint,endpoint))
+    if empty_or_opposite_color?(piece.color, endpoint) && \
+      (piece.is_a?(Knight) || empty_path?(startpoint,endpoint))
+      kill!(endpoint) if opposite_color?(piece.color,endpoint)
       piece.move!(endpoint)
     end
   end
@@ -61,14 +68,36 @@ class Board
     end
   end
 
+  def display_board
+    display = (0...SIZE).map do |i|
+      (0...SIZE).map do |j|
+        convert_to_unicode(what_is_at([i,j]))
+      end
+    end
+
+    display.each do |row|
+      puts row.join("  ")
+    end
+
+  end
+
+  private
+
   def coord_on_board?(coord)
     y, x = coord
     y.between?(0, SIZE - 1) && x.between?(0, SIZE - 1)
   end
 
-  def kill? #KILLLLL
+  def opposite_color?(color, endcoord)
+    other_piece = what_is_at(endcoord)
+    other_piece && color != other_piece.color
+  end
 
-  def valid_endpoint?(color, endpoint)
+  def kill!(coord)
+    @pieces.delete(what_is_at(coord))
+  end
+
+  def empty_or_opposite_color?(color, endpoint)
     endpoint_piece = what_is_at(endpoint)
     endpoint_piece.nil? || endpoint_piece.color != color
   end
@@ -94,6 +123,18 @@ class Board
     end
 
     path
+  end
+
+  def convert_to_unicode(piece)
+    color = piece ? piece.color : nil
+    case [piece.class, color]
+    when [Queen, :white]
+      "Q"# "♕"
+    when [Queen, :black]
+      "q"#  "♛"
+    when [NilClass, nil]
+      "_"# "□"
+    end
   end
 
 end
