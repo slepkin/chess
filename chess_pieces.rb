@@ -9,6 +9,7 @@ class ChessPiece
   end
 
   def move(endpoint)
+    #puts "Piece does not like move" unless valid_move?(endpoint)
     @position = endpoint if valid_move?(endpoint)
   end
 
@@ -50,13 +51,14 @@ class Rook < ChessPiece
 end
 
 class Bishop < ChessPiece
-  STEPS = [[1,1],[-1,1],[-1,1],[1,-1]]
+  STEPS = [[1,1],[-1,1],[-1,-1],[1,-1]]
 
   def valid_move?(endpoint)
     y1, x1 = @position
 
     STEPS.any? do |step|
       dy, dx = step
+      #puts "displacement: #{[dy,dx]}"
       (1...8).any? do |step_size| #if you want start to be in range, add 0
         [y1 + step_size * dy, x1 + step_size * dx] == endpoint
       end

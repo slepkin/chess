@@ -38,6 +38,7 @@ class Board
   def move_piece(startpoint, endpoint)
     piece = what_is_at(startpoint)
     end_piece = what_is_at(endpoint)
+    #puts "Not empty or opposite" unless empty_or_opposite_color?(piece.color, endpoint)
     if empty_or_opposite_color?(piece.color, endpoint) && \
       (piece.is_a?(Knight) || empty_path?(startpoint,endpoint))
       piece.move(endpoint) && kill(end_piece)
@@ -69,8 +70,6 @@ class Board
     new_board
   end
 
-  private
-
   def coord_on_board?(coord)
     y, x = coord
     y.between?(0, SIZE - 1) && x.between?(0, SIZE - 1)
@@ -86,16 +85,23 @@ class Board
   end
 
   def empty_path?(startpoint, endpoint)
-    path = path(startpoint, endpoint)
-    path.all?{|pos| what_is_at(pos).nil?}
+    begin
+      path = path(startpoint, endpoint)
+    rescue ArgumentError => e
+      #puts e.message
+      return false
+    end
+      path.all?{|pos| what_is_at(pos).nil?}
   end
 
   def path(startpoint, endpoint)
+
     path = []
     y1, x1 = startpoint
     y2, x2 = endpoint
     step = [y2 - y1, x2 - x1]
     unless step.include?(0) || step[0].abs == step[1].abs
+      #p "Argument raised"
       raise ArgumentError.new "Path must call horiz, vert, or diagonal line"
     end
     magnitude = step.find {|substep| substep != 0}.abs
@@ -106,6 +112,7 @@ class Board
     end
 
     path
+
   end
 
   def convert_to_unicode(piece)
@@ -145,18 +152,40 @@ class Board
     other_color = king_color == :black ? :white : :black
     @pieces.select{|piece| piece.color == other_color}.any? do |piece|
       temp_board = self.dup
-      temp_board.move_piece(piece.pos, k_pos)
-      !temp_board.include?{|x| x.class == King && x.color == king_color}
+      temp_board.move_piece(piece.position, k_pos)
+      !temp_board.pieces.any?{|x| x.class == King && x.color == king_color}
     end
   end
 
 end
 
 board = Board.new
-p board.move_piece([6,0], [4,0])
+board.move_piece([1,3],[3,3])
+board.display_board
 puts
+board.move_piece([6,4],[4,4])
+board.display_board
 puts
-p board.move_piece([7,0],[8,0])
+board.move_piece([7,5],[3,1])
+board.display_board
+board.move_piece([4,4],[3,3])
+board.display_board
+board.move_piece([3,3],[2,3])
+board.display_board
+board.move_piece([2,3],[1,3])
+board.display_board
+
+puts
+
+
+
+puts board.in_check?(:white)
+puts board.in_check?(:black)
+
+# p board.move_piece([6,0], [4,0])
+# puts
+# puts
+# p board.move_piece([7,0],[8,0])
 # board.move_piece([6,0], [4,0])
 # board.display_board
 # board.move_piece([4,0], [3,0])
