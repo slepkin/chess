@@ -104,7 +104,6 @@ class Pawn < ChessPiece
 
   def valid_move?(endpoint)
     y1, x1 = @position
-    @board.display_board
 
     y2, x2 = endpoint
     dy, dx = y2 - y1, x2 - x1

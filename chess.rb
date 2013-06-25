@@ -4,6 +4,8 @@ load './chess_pieces.rb'
 
 
 class Board
+  attr_accessor :pieces
+
   SIZE = 8
   def initialize
     spawn_pieces!
@@ -61,6 +63,12 @@ class Board
     nil
   end
 
+  def dup
+    new_board = Board.new
+    new_board.pieces = Set.new(@pieces.map{|piece| piece.dup})
+    new_board
+  end
+
   private
 
   def coord_on_board?(coord)
@@ -108,39 +116,53 @@ class Board
     when [Queen, :black]
       "♛"
     when [Rook, :white]
-      "♕"
+      "♖"
     when [Rook, :black]
-      "♛"
+      "♜"
     when [Bishop, :white]
-      "B"# "♕"
+      "♗"
     when [Bishop, :black]
-      "b"#  "♛"
+      "♝"
     when [King, :white]
-      "K"# "♕"
+      "♔"
     when [King, :black]
-      "k"#  "♛"
+      "♚"
     when [Knight, :white]
-      "N"# "♕"
+      "♘"
     when [Knight, :black]
-      "n"#  "♛"
+      "♞"
     when [Pawn, :white]
-      "P"# "♕"
+      "♙"
     when [Pawn, :black]
-      "p"#  "♛"
+      "♟"
     when [NilClass, nil]
       "_"# "□"
+    end
+  end
+
+  def in_check?(king_color)
+    k_pos = @pieces.find{|piece| piece.color == king_color && piece.class == King}.position
+    other_color = king_color == :black ? :white : :black
+    @pieces.select{|piece| piece.color == other_color}.any? do |piece|
+      temp_board = self.dup
+      temp_board.move_piece(piece.pos, k_pos)
+      !temp_board.include?{|x| x.class == King && x.color == king_color}
     end
   end
 
 end
 
 board = Board.new
-board.move_piece([6,0], [4,0])
-board.display_board
-board.move_piece([4,0], [3,0])
-board.display_board
-board.move_piece([3,0], [2,0])
-board.display_board
-board.move_piece([2,0], [1,1])
-board.display_board
-board.move_piece([1,1], [2,1])
+p board.move_piece([6,0], [4,0])
+puts
+puts
+p board.move_piece([7,0],[8,0])
+# board.move_piece([6,0], [4,0])
+# board.display_board
+# board.move_piece([4,0], [3,0])
+# board.display_board
+# board.move_piece([3,0], [2,0])
+# board.display_board
+# board.move_piece([2,0], [1,1])
+# board.display_board
+# board.move_piece([1,1], [2,1])
