@@ -85,6 +85,16 @@ class King < ChessPiece
 end
 
 class Knight < ChessPiece
+  STEPS = [[2, 1], [2, -1], [-2, -1], [-2, 1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
+
+  def valid_move?(endpoint)
+    y1, x1 = @position
+
+    STEPS.any? do |step|
+      dy, dx = step
+      [y1 + dy, x1 + dx] == endpoint
+    end
+  end
 
 end
 
@@ -108,6 +118,11 @@ class Board
     @pieces << Rook.new([7,7], :white, self)
     @pieces << Rook.new([0,0], :black, self)
     @pieces << Rook.new([0,7], :black, self)
+    @pieces << Knight.new([7,1], :white, self)
+    @pieces << Knight.new([7,6], :white, self)
+    @pieces << Knight.new([0,1], :black, self)
+    @pieces << Knight.new([0,6], :black, self)
+
   end
 
   def move_from_to(startpoint, endpoint)
@@ -201,6 +216,10 @@ class Board
       "K"# "♕"
     when [King, :black]
       "k"#  "♛"
+    when [Knight, :white]
+      "N"# "♕"
+    when [Knight, :black]
+      "n"#  "♛"
     when [NilClass, nil]
       "_"# "□"
     end
