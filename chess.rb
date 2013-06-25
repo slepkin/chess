@@ -1,5 +1,6 @@
+# encoding: UTF-8
 require 'set'
-require './chess_pieces'
+load './chess_pieces.rb'
 
 
 class Board
@@ -27,14 +28,17 @@ class Board
     @pieces << Knight.new([0,1], :black, self)
     @pieces << Knight.new([0,6], :black, self)
 
+    SIZE.times { |i| @pieces << Pawn.new([6,i],:white,self)}
+    SIZE.times { |i| @pieces << Pawn.new([1,i],:black,self)}
+
   end
 
-  def move_from_to(startpoint, endpoint)
+  def move_piece(startpoint, endpoint)
     piece = what_is_at(startpoint)
+    end_piece = what_is_at(endpoint)
     if empty_or_opposite_color?(piece.color, endpoint) && \
       (piece.is_a?(Knight) || empty_path?(startpoint,endpoint))
-      kill!(endpoint) if opposite_color?(piece.color,endpoint)
-      piece.move!(endpoint)
+      piece.move(endpoint) && kill(end_piece)
     end
   end
 
@@ -64,13 +68,8 @@ class Board
     y.between?(0, SIZE - 1) && x.between?(0, SIZE - 1)
   end
 
-  def opposite_color?(color, endcoord)
-    other_piece = what_is_at(endcoord)
-    other_piece && color != other_piece.color
-  end
-
-  def kill!(coord)
-    @pieces.delete(what_is_at(coord))
+  def kill(piece)
+    @pieces.delete(piece)
   end
 
   def empty_or_opposite_color?(color, endpoint)
@@ -105,13 +104,13 @@ class Board
     color = piece ? piece.color : nil
     case [piece.class, color]
     when [Queen, :white]
-      "Q"# "♕"
+      "♕"
     when [Queen, :black]
-      "q"#  "♛"
+      "♛"
     when [Rook, :white]
-      "R"# "♕"
+      "♕"
     when [Rook, :black]
-      "r"#  "♛"
+      "♛"
     when [Bishop, :white]
       "B"# "♕"
     when [Bishop, :black]
@@ -124,9 +123,24 @@ class Board
       "N"# "♕"
     when [Knight, :black]
       "n"#  "♛"
+    when [Pawn, :white]
+      "P"# "♕"
+    when [Pawn, :black]
+      "p"#  "♛"
     when [NilClass, nil]
       "_"# "□"
     end
   end
 
 end
+
+board = Board.new
+board.move_piece([6,0], [4,0])
+board.display_board
+board.move_piece([4,0], [3,0])
+board.display_board
+board.move_piece([3,0], [2,0])
+board.display_board
+board.move_piece([2,0], [1,1])
+board.display_board
+board.move_piece([1,1], [2,1])

@@ -8,16 +8,13 @@ class ChessPiece
     @board = board
   end
 
-  def move!(endpoint)
+  def move(endpoint)
     @position = endpoint if valid_move?(endpoint)
   end
-  #The below methods don't work with knights
+
   def valid_move?(endpoint)
     true
   end
-
-
-
 end
 
 class Queen < ChessPiece
@@ -96,16 +93,31 @@ class Knight < ChessPiece
 end
 
 class Pawn < ChessPiece
-  STEPS = (-1..1).flat_map do |i|
-    (-1..1).map{|j| [i,j]}
-  end - [[0,0]]
+
+
+  def initialize(position,color,board)
+    super(position,color,board)
+    @sign = @color == :black ? 1 : -1
+    @start_row = @color == :black ? 1 : 6
+  end
+
 
   def valid_move?(endpoint)
     y1, x1 = @position
+    @board.display_board
 
-    STEPS.any? do |step|
-      dy, dx = step
-      [y1 + dy, x1 + dx] == endpoint
+    y2, x2 = endpoint
+    dy, dx = y2 - y1, x2 - x1
+    end_object = @board.what_is_at(endpoint)
+    case [dy, dx]
+    when [@sign, 0]
+      end_object.nil?
+    when [2 * @sign, 0]
+      @position[0] == @start_row && end_object.nil?
+    when [@sign, 1], [@sign, -1]
+      end_object && end_object.color != color
+    else
+      false
     end
   end
 end
