@@ -2,6 +2,11 @@
 require 'set'
 load './chess_pieces.rb'
 
+def parse(str)
+  chars = str.split(//)
+  [chars[1].to_i-1,chars[0].ord - 97]
+end
+
 
 class Board
   attr_accessor :pieces
@@ -157,30 +162,35 @@ class Board
     end
   end
 
+  def in_checkmate?(king_color)
+    @pieces.select {|piece| piece.color == king_color }.all? do |piece|
+      piece.possible_moves.all? do |possible_move|
+        #create piece-level possible_moves method
+        temp_board = self.dup
+        temp_board.move_piece(piece.position, possible_move)
+        temp_board.in_check?(king_color)
+      end
+    end
+  end
+
 end
 
 board = Board.new
-board.move_piece([1,3],[3,3])
+board.move_piece(parse("e2"),parse("e4"))
 board.display_board
 puts
-board.move_piece([6,4],[4,4])
+board.move_piece(parse("d1"),parse("h5"))
 board.display_board
 puts
-board.move_piece([7,5],[3,1])
+board.move_piece(parse("f1"),parse("c4"))
 board.display_board
-board.move_piece([4,4],[3,3])
+puts
+board.move_piece(parse("h5"),parse("f7"))
 board.display_board
-board.move_piece([3,3],[2,3])
-board.display_board
-board.move_piece([2,3],[1,3])
-board.display_board
-
 puts
 
-
-
-puts board.in_check?(:white)
-puts board.in_check?(:black)
+puts board.in_checkmate?(:white)
+puts board.in_checkmate?(:black)
 
 # p board.move_piece([6,0], [4,0])
 # puts

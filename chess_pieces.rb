@@ -1,7 +1,6 @@
 class ChessPiece
   attr_reader :color, :position
 
-
   def initialize(position,color,board)
     @position = position
     @color = color
@@ -16,54 +15,49 @@ class ChessPiece
   def valid_move?(endpoint)
     true
   end
+
+  def possible_moves
+    pos_moves = []
+    (0...8).each do |y|
+      (0...8).each do |x|
+        pos_moves << [y , x]
+      end
+    end
+
+    pos_moves.select {|move| valid_move?(move)}
+  end
+
 end
 
-class Queen < ChessPiece
-  STEPS = (-1..1).flat_map do |i|
+class Rider < ChessPiece #A
+  @@steps = (-1..1).flat_map do |i|
+    (-1..1).map{|j| [i,j]}
+  end - [[0,0]]
+  def valid_move?(endpoint)
+    y1, x1 = @position
+
+    @@steps.any? do |step|
+      dy, dx = step
+      (1...8).any? do |step_size| #if you want start to be in range, add 0
+        [y1 + step_size * dy, x1 + step_size * dx] == endpoint
+      end
+    end
+  end
+end
+
+class Queen < Rider
+  @@steps = (-1..1).flat_map do |i|
     (-1..1).map{|j| [i,j]}
   end - [[0,0]]
 
-  def valid_move?(endpoint)
-    y1, x1 = @position
-
-    STEPS.any? do |step|
-      dy, dx = step
-      (1...8).any? do |step_size| #if you want start to be in range, add 0
-        [y1 + step_size * dy, x1 + step_size * dx] == endpoint
-      end
-    end
-  end
 end
 
-class Rook < ChessPiece
-  STEPS = [[1,0],[0,1],[-1,0],[0,-1]]
-
-  def valid_move?(endpoint)
-    y1, x1 = @position
-
-    STEPS.any? do |step|
-      dy, dx = step
-      (1...8).any? do |step_size| #if you want start to be in range, add 0
-        [y1 + step_size * dy, x1 + step_size * dx] == endpoint
-      end
-    end
-  end
+class Rook < Rider
+  @@steps = [[1,0],[0,1],[-1,0],[0,-1]]
 end
 
-class Bishop < ChessPiece
-  STEPS = [[1,1],[-1,1],[-1,-1],[1,-1]]
-
-  def valid_move?(endpoint)
-    y1, x1 = @position
-
-    STEPS.any? do |step|
-      dy, dx = step
-      #puts "displacement: #{[dy,dx]}"
-      (1...8).any? do |step_size| #if you want start to be in range, add 0
-        [y1 + step_size * dy, x1 + step_size * dx] == endpoint
-      end
-    end
-  end
+class Bishop < Rider
+  @@steps = [[1,1],[-1,1],[-1,-1],[1,-1]]
 end
 
 class King < ChessPiece
