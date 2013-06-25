@@ -53,7 +53,8 @@ class Board
   def display_board
     display = (0...SIZE).map do |i|
       (0...SIZE).map do |j|
-        convert_to_unicode(what_is_at([i,j]))
+        object_there = what_is_at([i,j])
+        object_there ? object_there.to_s : "▢"
       end
     end
 

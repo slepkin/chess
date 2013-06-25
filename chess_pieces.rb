@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 class ChessPiece
   attr_reader :color, :position
 
@@ -50,20 +52,36 @@ class Queen < Rider
     (-1..1).map{|j| [i,j]}
   end - [[0,0]]
 
+  def to_s
+    @color == :white ? "♕" : "♛"
+  end
+
 end
 
 class Rook < Rider
   @@steps = [[1,0],[0,1],[-1,0],[0,-1]]
+
+  def to_s
+    @color == :white ? "♖" : "♜"
+  end
 end
 
 class Bishop < Rider
   @@steps = [[1,1],[-1,1],[-1,-1],[1,-1]]
+
+  def to_s
+    @color == :white ? "♗" : "♝"
+  end
 end
 
 class King < ChessPiece
   STEPS = (-1..1).flat_map do |i|
     (-1..1).map{|j| [i,j]}
   end - [[0,0]]
+
+  def to_s
+    @color == :white ? "♔" : "♚"
+  end
 
   def valid_move?(endpoint)
     y1, x1 = @position
@@ -77,6 +95,10 @@ end
 
 class Knight < ChessPiece
   STEPS = [[2, 1], [2, -1], [-2, -1], [-2, 1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
+
+  def to_s
+    @color == :white ? "♘" : "♞"
+  end
 
   def valid_move?(endpoint)
     y1, x1 = @position
@@ -97,6 +119,9 @@ class Pawn < ChessPiece
     @start_row = @color == :black ? 1 : 6
   end
 
+  def to_s
+    @color == :white ? "♙" : "♟"
+  end
 
   def valid_move?(endpoint)
     y1, x1 = @position
