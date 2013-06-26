@@ -127,11 +127,6 @@ class Knight < ChessPiece
 end
 
 class Pawn < ChessPiece
-  def initialize(position,color,board)
-    super(position,color,board)
-    @direction = (@color == :black) ? -1 : 1
-    @start_row = (@color == :black) ? 6 : 1
-  end
 
   def to_s
     @color == :white ? "♙" : "♟"
@@ -150,25 +145,33 @@ class Pawn < ChessPiece
   end
 
   def promote?
-    @position[0] == 7 - @start_row + @direction
+    @position[0] == 7 - start_row + direction
   end
 
   private
 
+  def direction
+    (@color == :black) ? -1 : 1
+  end
+
+  def start_row
+    (@color == :black) ? 6 : 1
+  end
+
   def one_forward?(dy,dx)
-    [dy, dx] == [@direction, 0]
+    [dy, dx] == [direction, 0]
   end
 
   def two_forward?(dy,dx)
-    [dy, dx] == [2 * @direction, 0]
+    [dy, dx] == [2 * direction, 0]
   end
 
   def diagonal?(dy,dx)
-    [dy, dx.abs] == [@direction, 1]
+    [dy, dx.abs] == [direction, 1]
   end
 
   def not_moved_yet?
-    @position[0] == @start_row
+    @position[0] == start_row
   end
 
 

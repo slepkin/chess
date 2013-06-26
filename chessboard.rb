@@ -38,10 +38,9 @@ class Board
         object_there ? object_there.to_s : " "
       end
     end
-    #Yeah, I know it's a mess. Feel free to do better:
-    print "   "
-    ("a".."h").each{|letter| print " #{letter}  "}
-    puts "\n  ┌"+ "───┬" * 7 + "───┐"
+
+    puts ("a".."h").inject("   "){|so_far, letter| so_far + " #{letter}  "}
+    puts "  ┌"+ "───┬" * 7 + "───┐"
     display.each_with_index do |row,i|
       puts "#{i+1} │ " + row.join(" │ ") + " │"
       puts "  ├" + "───┼" * 7 + "───┤" unless i == 7
@@ -132,18 +131,14 @@ class Board
   end
 
   def path(startpoint, endpoint)
-    path = []
-    y1, x1 = startpoint
-    y2, x2 = endpoint
-    step = [y2 - y1, x2 - x1]
+    y, x = startpoint
+    step = [endpoint[0] - y, endpoint[1] - x]
     magnitude = step.max_by { |coord| coord.abs }
     unit_step = divide_vector(step, magnitude)
 
-    (1...magnitude).each do |step_number|
-      path << [y1 + step_number * unit_step[0], x1 + step_number * unit_step[1]]
+    (1...magnitude).map do |step_number|
+      [y + step_number * unit_step[0], x + step_number * unit_step[1]]
     end
-
-    path
   end
 
   def divide_vector(arr, magnitude)
