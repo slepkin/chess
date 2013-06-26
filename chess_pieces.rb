@@ -29,6 +29,10 @@ class ChessPiece
     pos_moves.select {|move| @board.legal_move?(position, move, color)}
   end
 
+  def promote? #Only pawns can be promoted
+    false
+  end
+
 end
 
 class Rider < ChessPiece
@@ -126,7 +130,7 @@ class Pawn < ChessPiece
   def initialize(position,color,board)
     super(position,color,board)
     @direction = (@color == :black) ? -1 : 1
-    @start_row = @color == :black ? 6 : 1
+    @start_row = (@color == :black) ? 6 : 1
   end
 
   def to_s
@@ -143,6 +147,10 @@ class Pawn < ChessPiece
     return not_moved_yet? && end_object.nil? if two_forward?(dy,dx)
     return end_object && end_object.color != color if diagonal?(dy,dx)
     false
+  end
+
+  def promote?
+    @position[0] == 7 - @start_row + @direction
   end
 
   private

@@ -19,8 +19,10 @@ class Board
   end
 
   def move_and_kill(startpoint, endpoint)
+    moving_piece = what_is_at(startpoint)
     kill(what_is_at(endpoint))
-    what_is_at(startpoint).move(endpoint)
+    moving_piece.move(endpoint)
+    promote(moving_piece) if moving_piece.promote?
   end
 
   def what_is_at(pos)
@@ -76,13 +78,13 @@ class Board
   private
 
   def spawn_pieces
+    @pieces = Set.new
     spawn_backrows
     spawn_pawns
   end
 
   def spawn_backrows
     piece_types = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
-    @pieces = Set.new
     piece_types.each_with_index do |type,i|
       @pieces << type.new([7, i], :black,self)
       @pieces << type.new([0, i], :white,self)
@@ -92,6 +94,12 @@ class Board
   def spawn_pawns
     SIZE.times { |i| @pieces << Pawn.new([1,i], :white,self)}
     SIZE.times { |i| @pieces << Pawn.new([6,i], :black,self)}
+  end
+
+  def promote(piece)
+    position, color = piece.position, piece.color
+    kill(piece)
+    @pieces << Queen.new(position, color, self)
   end
 
   def in_checkmate?(king_color)
