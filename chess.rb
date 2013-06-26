@@ -12,22 +12,29 @@ class Game
 
 
   def play
-    player_turn = :white
+    player_turn = :black
     puts "Welcome to chess!"
 
-    until @board.in_checkmate?(player_turn)
+    until @board.game_ended_by?(player_turn)
+      player_turn = toggle_color(player_turn)
+
       if player_turn == :white
         turn_of(@white_player)
       else
         turn_of(@black_player)
       end
-      player_turn = (player_turn == :white) ? :black :  :white
     end
 
+    game_over(player_turn)
+  end
+
+  def toggle_color(color)
+    (color == :white) ? :black : :white
+  end
+
+  def game_over(winning_player)
     @board.display_board
-
-    puts "#{player_turn.to_s.upcase} LOSES!!!!" if is_checkmate?(player_turn)
-
+    puts "Checkmate! #{winning_player.to_s.capitalize} Wins!"
   end
 
   def turn_of(player)
@@ -38,33 +45,30 @@ class Game
       move = player.make_move
       valid_input_check(move,color)
       @board.move_and_kill(*move)
-    rescue ArgumentError => e
+    rescue MoveError => e
       puts e.message
       puts "Please try again."
       @board.display_board
       retry
     end
-    other_color = (color == :white) ? :black :  :white
+    other_color = toggle_color(color)
     puts "Check" if @board.in_check?(other_color)
   end
 
   def valid_input_check(move,color)
     if @board.what_is_at(move[0]).nil?
-      raise ArgumentError.new "There's no piece there."
+      raise MoveError.new "There's no piece there."
     end
     unless color == @board.what_is_at(move[0]).color
-      raise ArgumentError.new "That's not your piece."
+      raise MoveError.new "That's not your piece."
     end
     unless @board.legal_move?(*move, color)
-      raise ArgumentError.new "Illegal move."
+      raise MoveError.new "Illegal move."
     end
     if @board.causes_check?(*move, color)
-      raise ArgumentError.new "This will put you in check."
+      raise MoveError.new "This will put you in check."
     end
   end
-
-
-
 end
 
 class HumanPlayer
@@ -87,10 +91,10 @@ class HumanPlayer
     chars = str.split(//)
     [chars[1].to_i-1,chars[0].ord - 97]
   end
-
-
 end
 
+class MoveError < RuntimeError
+end
 
 game = Game.new
 game.play

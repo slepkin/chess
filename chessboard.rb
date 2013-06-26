@@ -150,4 +150,9 @@ class Board
     end
   end
 
+  # will allow for future additional ending conditions
+  def game_ended_by?(last_player)
+    next_player = (last_player == :white) ? :black : :white
+    in_checkmate?(next_player) # || in_stalemate?
+  end
 end
