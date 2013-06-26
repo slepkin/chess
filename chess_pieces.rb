@@ -31,8 +31,7 @@ class ChessPiece
 
 end
 
-class Rider < ChessPiece #A
-
+class Rider < ChessPiece
   def initialize(position,color,board)
     super(position,color,board)
     @steps = (-1..1).flat_map do |i|
@@ -45,7 +44,7 @@ class Rider < ChessPiece #A
 
     @steps.any? do |step|
       dy, dx = step
-      (1...8).any? do |step_size| #if you want start to be in range, add 0
+      (1...8).any? do |step_size|
         [y1 + step_size * dy, x1 + step_size * dx] == endpoint
       end
     end
@@ -53,7 +52,6 @@ class Rider < ChessPiece #A
 end
 
 class Queen < Rider
-
   def initialize(position,color,board)
     super(position,color,board)
     @steps = (-1..1).flat_map do |i|
@@ -64,11 +62,9 @@ class Queen < Rider
   def to_s
     @color == :white ? "♕" : "♛"
   end
-
 end
 
 class Rook < Rider
-
   def initialize(position,color,board)
     super(position,color,board)
     @steps = [[1,0],[0,1],[-1,0],[0,-1]]
@@ -80,7 +76,6 @@ class Rook < Rider
 end
 
 class Bishop < Rider
-
   def initialize(position,color,board)
     super(position,color,board)
     @steps = [[1,1],[-1,1],[-1,-1],[1,-1]]
@@ -128,8 +123,6 @@ class Knight < ChessPiece
 end
 
 class Pawn < ChessPiece
-
-
   def initialize(position,color,board)
     super(position,color,board)
     @sign = @color == :black ? -1 : 1

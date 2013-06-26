@@ -7,10 +7,11 @@ class Board
 
   SIZE = 8
   def initialize
-    spawn_pieces!
+    spawn_pieces
   end
 
-  def spawn_pieces!
+  def spawn_pieces
+    []
     @pieces = Set.new
     @pieces << Queen.new([0,3], :white, self)
     @pieces << Queen.new([7,3], :black, self)
