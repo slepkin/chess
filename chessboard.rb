@@ -10,25 +10,6 @@ class Board
     spawn_pieces
   end
 
-  def spawn_pieces
-    spawn_backrows
-    spawn_pawns
-  end
-
-  def spawn_backrows
-    piece_types = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
-    @pieces = Set.new
-    piece_types.each_with_index do |type,i|
-      @pieces << type.new([7, i], :black,self)
-      @pieces << type.new([0, i], :white,self)
-    end
-  end
-
-  def spawn_pawns
-    SIZE.times { |i| @pieces << Pawn.new([1,i], :white,self)}
-    SIZE.times { |i| @pieces << Pawn.new([6,i], :black,self)}
-  end
-
   def legal_move?(startpoint, endpoint, color)
     piece = what_is_at(startpoint)
     end_piece = what_is_at(endpoint)
@@ -65,6 +46,52 @@ class Board
     end
     puts "  └"+ "───┴" * 7 + "───┘"
     nil
+  end
+
+  def in_check?(king_color)
+    king = @pieces.find{ |piece| piece.color == king_color && piece.class == King}
+    k_pos = king.position
+    other_color = king_color == :black ? :white : :black
+
+    @pieces.select{ |piece| piece.color == other_color}.any? do |piece|
+      legal_move?(piece.position, k_pos, other_color)
+    end
+  end
+
+  # will allow for future additional ending conditions
+  def game_ended_by?(last_color)
+    next_color = (last_color == :white) ? :black : :white
+    every_move_causes_check?(next_color) || only_kings?
+    # add other types of stalemate
+  end
+
+  def causes_check?(startpoint, endpoint, color) #only called if valid_move
+    temp_board = dup
+    temp_piece = temp_board.what_is_at(startpoint)
+
+    temp_board.move_and_kill(startpoint, endpoint)
+    temp_board.in_check?(color)
+  end
+
+  private
+
+  def spawn_pieces
+    spawn_backrows
+    spawn_pawns
+  end
+
+  def spawn_backrows
+    piece_types = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
+    @pieces = Set.new
+    piece_types.each_with_index do |type,i|
+      @pieces << type.new([7, i], :black,self)
+      @pieces << type.new([0, i], :white,self)
+    end
+  end
+
+  def spawn_pawns
+    SIZE.times { |i| @pieces << Pawn.new([1,i], :white,self)}
+    SIZE.times { |i| @pieces << Pawn.new([6,i], :black,self)}
   end
 
   def in_checkmate?(king_color)
@@ -115,24 +142,6 @@ class Board
     arr.map{ |coord| coord / magnitude }
   end
 
-  def in_check?(king_color)
-    king = @pieces.find{ |piece| piece.color == king_color && piece.class == King}
-    k_pos = king.position
-    other_color = king_color == :black ? :white : :black
-
-    @pieces.select{ |piece| piece.color == other_color}.any? do |piece|
-      legal_move?(piece.position, k_pos, other_color)
-    end
-  end
-
-  def causes_check?(startpoint, endpoint, color) #only called if valid_move
-    temp_board = self.dup
-    temp_piece = temp_board.what_is_at(startpoint)
-
-    temp_board.move_and_kill(startpoint, endpoint)
-    temp_board.in_check?(color)
-  end
-
   def every_move_causes_check?(king_color)
     @pieces.select {|piece| piece.color == king_color }.all? do |piece|
       piece.possible_moves.all? do |possible_move|
@@ -145,10 +154,5 @@ class Board
     @pieces.size == 2
   end
 
-  # will allow for future additional ending conditions
-  def game_ended_by?(last_color)
-    next_color = (last_color == :white) ? :black : :white
-    every_move_causes_check?(next_color) || only_kings?
-    # add other types of stalemate
-  end
+
 end
