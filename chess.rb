@@ -27,9 +27,8 @@ class Game
       end
     end
 
-    game_over(@current_color)
+    game_over
   end
-
 
   private
 
@@ -37,11 +36,11 @@ class Game
     (color == :white) ? :black : :white
   end
 
-  def game_over(winning_color)
+  def game_over
     @board.display_board
-    losing_color = toggle_color(winning_color)
+    losing_color = toggle_color(@current_color)
     if @board.in_check?(losing_color)
-      puts "Checkmate! #{winning_color.to_s.capitalize} Wins!"
+      puts "Checkmate! #{ @current_color.to_s.capitalize } Wins!"
     else
       puts "Stalemate."
     end
@@ -49,11 +48,11 @@ class Game
 
   def save_game
     save_str = self.to_yaml
-    File.open("chess.save","w"){ |f| f.puts(save_str) }
+    File.open(Operator.save_name,"w") { |f| f.puts(save_str) }
   end
 
   def load_game
-    load_str = File.read("chess.save")
+    load_str = File.read(Operator.load_name)
     temp_game = YAML::load(load_str)
     @board = temp_game.board
     @current_color = toggle_color(temp_game.player_turn)
@@ -62,7 +61,7 @@ class Game
   def turn_of(player)
     @board.display_board
     puts "Check" if @board.in_check?(@current_color)
-    puts "#{@current_color.to_s.upcase} TURN"
+    puts "#{ @current_color.to_s.upcase } TURN"
 
     begin
       move = player.make_move
@@ -75,7 +74,7 @@ class Game
     end
   end
 
-  def process_input(move)
+  def process_input(move) #Does this smell?
     case move
     when :save
       save_game
@@ -90,6 +89,9 @@ class Game
   end
 
   def valid_input_check(move)
+    unless move.length == 2
+      raise MoveError.new "Improper formatting."
+    end
     if @board.what_is_at(move[0]).nil?
       raise MoveError.new "There's no piece there."
     end
@@ -103,7 +105,9 @@ class Game
       raise MoveError.new "This will put you in check."
     end
   end
+
 end
+
 
 class HumanPlayer
   attr_reader :color
@@ -112,7 +116,7 @@ class HumanPlayer
     @color = color
   end
 
-  def make_move #refactor this
+  def make_move
     puts "Enter coordinates, of form 'f2,a1', or 'save', 'load', or 'quit'"
     command_parse(gets.chomp)
   end
@@ -124,23 +128,46 @@ class HumanPlayer
     [chars[1].to_i-1, chars[0].ord - 97]
   end
 
-  def command_parse(command)
-    case command
-    when 'save'
-      :save
-    when 'load'
-      :load
-    when 'quit', 'exit'
-      :quit
+  def command_parse(command) #Does this smell?
+    if %w(save load quit exit).include?(command)
+      command.to_sym
     else
-      command.split(",").map{|str| coord_parse(str)}
+      command.split(",").map { |str| coord_parse(str) }
     end
   end
+
 end
+
+
+class Operator
+
+  def self.restart_game?
+    puts "Would you like to play again? (y/n)"
+    choice = gets.chomp.downcase[0]
+    choice == "y" ? true : false
+  end
+
+  def self.save_name
+    puts "What do you want to name the save file?"
+    gets.chomp
+  end
+
+  def self.load_name
+    puts "What file should I load?"
+    gets.chomp
+  end
+end
+
 
 class MoveError < RuntimeError
 end
 
-game = Game.new
-game.play
+if __FILE__ == $PROGRAM_NAME
 
+  loop do
+    game = Game.new
+    game.play
+    break unless Operator.restart_game?
+  end
+
+end

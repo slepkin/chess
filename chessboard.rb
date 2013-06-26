@@ -39,21 +39,21 @@ class Board
       end
     end
 
-    puts ("a".."h").inject("   "){ |so_far, letter| so_far + " #{letter}  "}
+    puts ("a".."h").inject("   ") { |so_far, letter| so_far + " #{letter}  " }
     puts "  ┌"+ "───┬" * 7 + "───┐"
     display.each_with_index do |row, i|
-      puts "#{i+1} │ " + row.join(" │ ") + " │"
+      puts "#{ i+1 } │ " + row.join(" │ ") + " │"
       puts "  ├" + "───┼" * 7 + "───┤" unless i == 7
     end
     puts "  └"+ "───┴" * 7 + "───┘"
     nil
   end
 
-  def in_check?(king_color)
-    king = @pieces.find{ |piece| piece.color == king_color && piece.class == King}
+  def in_check?(k_color)
+    king = @pieces.find { |piece| piece.color == k_color && piece.is_a?(King) }
     k_pos = king.position
-    other_color = (king_color == :black) ? :white : :black
-    @pieces.select{ |piece| piece.color == other_color}.any? do |piece|
+    other_color = (k_color == :black) ? :white : :black
+    @pieces.select { |piece| piece.color == other_color }.any? do |piece|
       legal_move?(piece.position, k_pos, other_color)
     end
   end
@@ -62,16 +62,17 @@ class Board
   def game_ended_by?(last_color)
     next_color = (last_color == :white) ? :black : :white
     every_move_causes_check?(next_color) || only_kings?
-    # add other types of stalemate
+    # add other types of stalemate?
   end
 
-  def causes_check?(startpoint, endpoint, color) #only called if valid_move
+  def causes_check?(startpoint, endpoint, color) #only call if valid_move
     temp_board = dup
     temp_piece = temp_board.what_is_at(startpoint)
 
     temp_board.move_and_kill(startpoint, endpoint)
     temp_board.in_check?(color)
   end
+
 
   private
 
@@ -90,8 +91,8 @@ class Board
   end
 
   def spawn_pawns
-    8.times { |i| @pieces << Pawn.new([1, i], :white, self)}
-    8.times { |i| @pieces << Pawn.new([6, i], :black, self)}
+    8.times { |i| @pieces << Pawn.new([1, i], :white, self) }
+    8.times { |i| @pieces << Pawn.new([6, i], :black, self) }
   end
 
   def promote(piece)
@@ -106,7 +107,7 @@ class Board
 
   def dup
     new_board = Board.new
-    new_board.pieces = Set.new(@pieces.map{ |piece| piece.dup})
+    new_board.pieces = Set.new(@pieces.map { |piece| piece.dup })
     new_board
   end
 
@@ -126,7 +127,7 @@ class Board
 
   def empty_path?(startpoint, endpoint)
     path = path(startpoint, endpoint)
-    path.all?{ |pos| what_is_at(pos).nil?}
+    path.all? { |pos| what_is_at(pos).nil? }
   end
 
   def path(startpoint, endpoint)
@@ -141,7 +142,7 @@ class Board
   end
 
   def divide_vector(arr, magnitude)
-    arr.map{ |coord| coord / magnitude }
+    arr.map { |coord| coord / magnitude }
   end
 
   def every_move_causes_check?(king_color)
@@ -155,4 +156,5 @@ class Board
   def only_kings?
     @pieces.size == 2
   end
+
 end

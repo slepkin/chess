@@ -31,7 +31,7 @@ class ChessPiece
       end
     end
 
-    pos_moves.select {|move| @board.legal_move?(position, move, color)}
+    pos_moves.select { |move| @board.legal_move?(position, move, color) }
   end
 
   def promote? #Only pawns can be promoted
