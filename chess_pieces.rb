@@ -11,11 +11,10 @@ class ChessPiece
   end
 
   def move(endpoint)
-    #puts "Piece does not like move" unless valid_move?(endpoint)
-    @position = endpoint if valid_move?(endpoint)
+    @position = endpoint
   end
 
-  def valid_move?(endpoint)
+  def in_range?(endpoint)
     true
   end
 
@@ -27,7 +26,7 @@ class ChessPiece
       end
     end
 
-    pos_moves.select {|move| valid_move?(move)}
+    pos_moves.select {|move| in_range?(move)}
   end
 
 end
@@ -41,7 +40,7 @@ class Rider < ChessPiece #A
     end - [[0,0]]
   end
 
-  def valid_move?(endpoint)
+  def in_range?(endpoint)
     y1, x1 = @position
 
     @steps.any? do |step|
@@ -101,7 +100,7 @@ class King < ChessPiece
     @color == :white ? "♔" : "♚"
   end
 
-  def valid_move?(endpoint)
+  def in_range?(endpoint)
     y1, x1 = @position
 
     STEPS.any? do |step|
@@ -118,7 +117,7 @@ class Knight < ChessPiece
     @color == :white ? "♘" : "♞"
   end
 
-  def valid_move?(endpoint)
+  def in_range?(endpoint)
     y1, x1 = @position
 
     STEPS.any? do |step|
@@ -141,7 +140,7 @@ class Pawn < ChessPiece
     @color == :white ? "♙" : "♟"
   end
 
-  def valid_move?(endpoint)
+  def in_range?(endpoint)
     y1, x1 = @position
 
     y2, x2 = endpoint

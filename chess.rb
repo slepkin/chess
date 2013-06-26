@@ -19,11 +19,15 @@ class Game
 
       if player_turn == :white
         move = @white_player.make_move
-        @board.move_piece(*move, :white)
+        if @board.legal_move?(*move, :white)
+          @board.move_and_kill(*move)
+        end #Have player repeat move
       elsif
         player_turn == :black
         move = @black_player.make_move
-        @board.move_piece(*move, :black)
+        if @board.legal_move?(*move, :black)
+          @board.move_and_kill(*move)
+        end #Have player repeat move
       end
 
       player_turn = (player_turn == :white) ? :black :  :white
@@ -53,40 +57,3 @@ end
 game = Game.new
 game.play
 
-
-
-#
-#
-#
-#
-#
-# board = Board.new
-# board.move_piece(parse("e2"),parse("e4"))
-# board.display_board
-# puts
-# board.move_piece(parse("d1"),parse("h5"))
-# board.display_board
-# puts
-# board.move_piece(parse("f1"),parse("c4"))
-# board.display_board
-# puts
-# board.move_piece(parse("h5"),parse("f7"))
-# board.display_board
-# puts
-#
-# puts board.in_checkmate?(:white)
-# puts board.in_checkmate?(:black)
-#
-# # p board.move_piece([6,0], [4,0])
-# # puts
-# # puts
-# # p board.move_piece([7,0],[8,0])
-# # board.move_piece([6,0], [4,0])
-# # board.display_board
-# # board.move_piece([4,0], [3,0])
-# # board.display_board
-# # board.move_piece([3,0], [2,0])
-# # board.display_board
-# # board.move_piece([2,0], [1,1])
-# # board.display_board
-# # board.move_piece([1,1], [2,1])
