@@ -124,20 +124,20 @@ class Board
   end
 
   def in_check?(king_color)
-    k_pos = @pieces.find{|piece| piece.color == king_color && piece.class == King}.position
+    king = @pieces.find{ |piece| piece.color == king_color && piece.class == King}
+    k_pos = king.position
     other_color = king_color == :black ? :white : :black
-    @pieces.select{|piece| piece.color == other_color}.any? do |piece|
-      temp_board = self.dup
-      temp_board.legal_move?(piece.position, k_pos, piece.color)
-      !temp_board.pieces.any?{|x| x.class == King && x.color == king_color}
+
+    @pieces.select{ |piece| piece.color == other_color}.any? do |piece|
+      legal_move?(piece.position, k_pos)
     end
   end
 
-  def causes_check?(startpoint, endpoint, color)
+  def causes_check?(startpoint, endpoint, color) #only called if valid_move
     temp_board = self.dup
     temp_piece = temp_board.what_is_at(startpoint)
-    kill(temp_board.what_is_at(endpoint))
-    temp_piece.position = endpoint
+
+    move_and_kill(startpoint, endpoint)
     temp_board.in_check?(color)
   end
 
