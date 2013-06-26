@@ -47,8 +47,10 @@ class Game
 
   def turn_of(player)
     color = player.color
-    puts "#{color.to_s.upcase} TURN"
     @board.display_board
+    puts "Check" if @board.in_check?(color)
+    puts "#{color.to_s.upcase} TURN"
+
     begin
       move = player.make_move
       valid_input_check(move,color)
@@ -59,8 +61,6 @@ class Game
       @board.display_board
       retry
     end
-    other_color = toggle_color(color)
-    puts "Check" if @board.in_check?(other_color)
   end
 
   def valid_input_check(move,color)
