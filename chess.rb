@@ -28,6 +28,9 @@ class Game
     game_over(player_turn)
   end
 
+
+  private
+
   def toggle_color(color)
     (color == :white) ? :black : :white
   end
