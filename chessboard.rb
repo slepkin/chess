@@ -14,7 +14,7 @@ class Board
     piece = what_is_at(startpoint)
     end_piece = what_is_at(endpoint)
     empty_or_opposite_color?(color, endpoint) && \
-      (piece.is_a?(Knight) || empty_path?(startpoint,endpoint)) &&\
+      (piece.is_a?(Knight) || empty_path?(startpoint, endpoint)) &&\
       piece.in_range?(endpoint)
   end
 
@@ -39,9 +39,9 @@ class Board
       end
     end
 
-    puts ("a".."h").inject("   "){|so_far, letter| so_far + " #{letter}  "}
+    puts ("a".."h").inject("   "){ |so_far, letter| so_far + " #{letter}  "}
     puts "  ┌"+ "───┬" * 7 + "───┐"
-    display.each_with_index do |row,i|
+    display.each_with_index do |row, i|
       puts "#{i+1} │ " + row.join(" │ ") + " │"
       puts "  ├" + "───┼" * 7 + "───┤" unless i == 7
     end
@@ -84,15 +84,15 @@ class Board
 
   def spawn_backrows
     piece_types = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
-    piece_types.each_with_index do |type,i|
-      @pieces << type.new([7, i], :black,self)
-      @pieces << type.new([0, i], :white,self)
+    piece_types.each_with_index do |type, i|
+      @pieces << type.new([7, i], :black, self)
+      @pieces << type.new([0, i], :white, self)
     end
   end
 
   def spawn_pawns
-    SIZE.times { |i| @pieces << Pawn.new([1,i], :white,self)}
-    SIZE.times { |i| @pieces << Pawn.new([6,i], :black,self)}
+    SIZE.times { |i| @pieces << Pawn.new([1, i], :white, self)}
+    SIZE.times { |i| @pieces << Pawn.new([6, i], :black, self)}
   end
 
   def promote(piece)
@@ -107,7 +107,7 @@ class Board
 
   def dup
     new_board = Board.new
-    new_board.pieces = Set.new(@pieces.map{|piece| piece.dup})
+    new_board.pieces = Set.new(@pieces.map{ |piece| piece.dup})
     new_board
   end
 
@@ -127,7 +127,7 @@ class Board
 
   def empty_path?(startpoint, endpoint)
     path = path(startpoint, endpoint)
-    path.all?{|pos| what_is_at(pos).nil?}
+    path.all?{ |pos| what_is_at(pos).nil?}
   end
 
   def path(startpoint, endpoint)
@@ -146,7 +146,7 @@ class Board
   end
 
   def every_move_causes_check?(king_color)
-    @pieces.select {|piece| piece.color == king_color }.all? do |piece|
+    @pieces.select { |piece| piece.color == king_color }.all? do |piece|
       piece.possible_moves.all? do |possible_move|
         causes_check?(piece.position, possible_move, king_color)
       end
@@ -156,6 +156,4 @@ class Board
   def only_kings?
     @pieces.size == 2
   end
-
-
 end

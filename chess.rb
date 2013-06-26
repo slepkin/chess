@@ -53,7 +53,7 @@ class Game
 
     begin
       move = player.make_move
-      valid_input_check(move,color)
+      valid_input_check(move, color)
       @board.move_and_kill(*move)
     rescue MoveError => e
       puts e.message
@@ -63,7 +63,7 @@ class Game
     end
   end
 
-  def valid_input_check(move,color)
+  def valid_input_check(move, color)
     if @board.what_is_at(move[0]).nil?
       raise MoveError.new "There's no piece there."
     end
@@ -97,7 +97,7 @@ class HumanPlayer
       abort('Thanks for playing!')
     end
     chars = str.split(//)
-    [chars[1].to_i-1,chars[0].ord - 97]
+    [chars[1].to_i-1, chars[0].ord - 97]
   end
 end
 

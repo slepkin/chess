@@ -4,7 +4,7 @@ class ChessPiece
   attr_accessor :position
   attr_reader :color
 
-  def initialize(position,color,board)
+  def initialize(position, color, board)
     @position = position
     @color = color
     @board = board
@@ -36,11 +36,11 @@ class ChessPiece
 end
 
 class Rider < ChessPiece
-  def initialize(position,color,board)
-    super(position,color,board)
+  def initialize(position, color, board)
+    super(position, color, board)
     @steps = (-1..1).flat_map do |i|
-    (-1..1).map{|j| [i,j]}
-    end - [[0,0]]
+    (-1..1).map{|j| [i, j]}
+    end - [[0, 0]]
   end
 
   def in_range?(endpoint)
@@ -56,11 +56,11 @@ class Rider < ChessPiece
 end
 
 class Queen < Rider
-  def initialize(position,color,board)
-    super(position,color,board)
+  def initialize(position, color, board)
+    super(position, color, board)
     @steps = (-1..1).flat_map do |i|
-      (-1..1).map{|j| [i,j]}
-    end - [[0,0]]
+      (-1..1).map{|j| [i, j]}
+    end - [[0, 0]]
   end
 
   def to_s
@@ -69,9 +69,9 @@ class Queen < Rider
 end
 
 class Rook < Rider
-  def initialize(position,color,board)
-    super(position,color,board)
-    @steps = [[1,0],[0,1],[-1,0],[0,-1]]
+  def initialize(position, color, board)
+    super(position, color, board)
+    @steps = [[1, 0], [0, 1], [-1, 0], [0, -1]]
   end
 
   def to_s
@@ -80,9 +80,9 @@ class Rook < Rider
 end
 
 class Bishop < Rider
-  def initialize(position,color,board)
-    super(position,color,board)
-    @steps = [[1,1],[-1,1],[-1,-1],[1,-1]]
+  def initialize(position, color, board)
+    super(position, color, board)
+    @steps = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
   end
 
   def to_s
@@ -92,8 +92,8 @@ end
 
 class King < ChessPiece
   STEPS = (-1..1).flat_map do |i|
-    (-1..1).map{|j| [i,j]}
-  end - [[0,0]]
+    (-1..1).map{|j| [i, j]}
+  end - [[0, 0]]
 
   def to_s
     @color == :white ? "♔" : "♚"
@@ -138,9 +138,9 @@ class Pawn < ChessPiece
     dy, dx = y2 - y1, x2 - x1
     end_object = @board.what_is_at(endpoint)
 
-    return end_object.nil? if one_forward?(dy,dx)
-    return not_moved_yet? && end_object.nil? if two_forward?(dy,dx)
-    return end_object && end_object.color != color if diagonal?(dy,dx)
+    return end_object.nil? if one_forward?(dy, dx)
+    return not_moved_yet? && end_object.nil? if two_forward?(dy, dx)
+    return end_object && end_object.color != color if diagonal?(dy, dx)
     false
   end
 
@@ -158,15 +158,15 @@ class Pawn < ChessPiece
     (@color == :black) ? 6 : 1
   end
 
-  def one_forward?(dy,dx)
+  def one_forward?(dy, dx)
     [dy, dx] == [direction, 0]
   end
 
-  def two_forward?(dy,dx)
+  def two_forward?(dy, dx)
     [dy, dx] == [2 * direction, 0]
   end
 
-  def diagonal?(dy,dx)
+  def diagonal?(dy, dx)
     [dy, dx.abs] == [direction, 1]
   end
 
