@@ -12,25 +12,25 @@ class Board
 
   def spawn_pieces!
     @pieces = Set.new
-    @pieces << Queen.new([7,3], :white, self)
-    @pieces << Queen.new([0,3], :black, self)
-    @pieces << King.new([7,4], :white, self)
-    @pieces << King.new([0,4], :black, self)
-    @pieces << Bishop.new([7,2], :white, self)
-    @pieces << Bishop.new([7,5], :white, self)
-    @pieces << Bishop.new([0,2], :black, self)
-    @pieces << Bishop.new([0,5], :black, self)
-    @pieces << Rook.new([7,0], :white, self)
-    @pieces << Rook.new([7,7], :white, self)
-    @pieces << Rook.new([0,0], :black, self)
-    @pieces << Rook.new([0,7], :black, self)
-    @pieces << Knight.new([7,1], :white, self)
-    @pieces << Knight.new([7,6], :white, self)
-    @pieces << Knight.new([0,1], :black, self)
-    @pieces << Knight.new([0,6], :black, self)
+    @pieces << Queen.new([0,3], :white, self)
+    @pieces << Queen.new([7,3], :black, self)
+    @pieces << King.new([0,4], :white, self)
+    @pieces << King.new([7,4], :black, self)
+    @pieces << Bishop.new([0,2], :white, self)
+    @pieces << Bishop.new([0,5], :white, self)
+    @pieces << Bishop.new([7,2], :black, self)
+    @pieces << Bishop.new([7,5], :black, self)
+    @pieces << Rook.new([0,0], :white, self)
+    @pieces << Rook.new([0,7], :white, self)
+    @pieces << Rook.new([7,0], :black, self)
+    @pieces << Rook.new([7,7], :black, self)
+    @pieces << Knight.new([0,1], :white, self)
+    @pieces << Knight.new([0,6], :white, self)
+    @pieces << Knight.new([7,1], :black, self)
+    @pieces << Knight.new([7,6], :black, self)
 
-    SIZE.times { |i| @pieces << Pawn.new([6,i],:white,self)}
-    SIZE.times { |i| @pieces << Pawn.new([1,i],:black,self)}
+    SIZE.times { |i| @pieces << Pawn.new([1,i],:white,self)}
+    SIZE.times { |i| @pieces << Pawn.new([6,i],:black,self)}
 
   end
 
@@ -129,7 +129,7 @@ class Board
     other_color = king_color == :black ? :white : :black
 
     @pieces.select{ |piece| piece.color == other_color}.any? do |piece|
-      legal_move?(piece.position, k_pos)
+      legal_move?(piece.position, k_pos, other_color)
     end
   end
 
@@ -137,17 +137,14 @@ class Board
     temp_board = self.dup
     temp_piece = temp_board.what_is_at(startpoint)
 
-    move_and_kill(startpoint, endpoint)
+    temp_board.move_and_kill(startpoint, endpoint)
     temp_board.in_check?(color)
   end
 
   def in_checkmate?(king_color)
     @pieces.select {|piece| piece.color == king_color }.all? do |piece|
       piece.possible_moves.all? do |possible_move|
-        #create piece-level possible_moves method
-        temp_board = self.dup
-        temp_board.legal_move?(piece.position, possible_move, piece.color)
-        temp_board.in_check?(king_color)
+        causes_check?(piece.position, possible_move, king_color)
       end
     end
   end

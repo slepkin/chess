@@ -26,7 +26,7 @@ class ChessPiece
       end
     end
 
-    pos_moves.select {|move| in_range?(move)}
+    pos_moves.select {|move| @board.legal_move?(position, move, color)}
   end
 
 end
@@ -132,8 +132,8 @@ class Pawn < ChessPiece
 
   def initialize(position,color,board)
     super(position,color,board)
-    @sign = @color == :black ? 1 : -1
-    @start_row = @color == :black ? 1 : 6
+    @sign = @color == :black ? -1 : 1
+    @start_row = @color == :black ? 6 : 1
   end
 
   def to_s
