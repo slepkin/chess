@@ -5,20 +5,20 @@ require 'yaml'
 
 class Game
 
-  attr_reader :board, :player_turn
+  attr_reader :board, :current_color
 
   def initialize
     @board = Board.new
     @white_player = HumanPlayer.new(:white)
     @black_player = HumanPlayer.new(:black)
-    @current_color = :black
+    @current_color = :white
   end
 
   def play
     puts "Welcome to chess!"
 
-    until @board.game_ended_by?(@current_color)
-      @current_color = toggle_color(@current_color)
+    until @board.game_ended_by?(toggle_color(@current_color))
+
 
       if @current_color == :white
         turn_of(@white_player)
@@ -38,9 +38,9 @@ class Game
 
   def game_over
     @board.display_board
-    losing_color = toggle_color(@current_color)
-    if @board.in_check?(losing_color)
-      puts "Checkmate! #{ @current_color.to_s.capitalize } Wins!"
+    winning_color = toggle_color(@current_color)
+    if @board.in_check?(@current_color)
+      puts "Checkmate! #{ winning_color.to_s.capitalize } Wins!"
     else
       puts "Stalemate."
     end
@@ -55,7 +55,7 @@ class Game
     load_str = File.read(Operator.load_name)
     temp_game = YAML::load(load_str)
     @board = temp_game.board
-    @current_color = toggle_color(temp_game.player_turn)
+    @current_color = temp_game.current_color
   end
 
   def turn_of(player)
@@ -84,6 +84,7 @@ class Game
       abort('Thanks for playing!')
     else
       valid_input_check(move)
+      @current_color = toggle_color(@current_color)
       @board.move_and_kill(*move)
     end
   end
@@ -169,5 +170,6 @@ if __FILE__ == $PROGRAM_NAME
     game.play
     break unless Operator.restart_game?
   end
+  puts "Thanks for playing!"
 
 end
