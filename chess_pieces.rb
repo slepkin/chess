@@ -41,13 +41,6 @@ class ChessPiece
 end
 
 class Rider < ChessPiece
-  # def initialize(position, color, board)
-  #   super(position, color, board)
-  #   @steps = (-1..1).flat_map do |i|
-  #   (-1..1).map{|j| [i, j]}
-  #   end - [[0, 0]]
-  # end
-
   def steps
     []
   end
@@ -75,7 +68,6 @@ class Queen < Rider
 end
 
 class Rook < Rider
-
   def steps
     NORM_STEPS
   end
@@ -91,7 +83,6 @@ class Rook < Rider
 end
 
 class Bishop < Rider
-
   def steps
     DIAG_STEPS
   end
@@ -102,7 +93,6 @@ class Bishop < Rider
 end
 
 class King < ChessPiece
-
   def to_s
     @color == :white ? "♔" : "♚"
   end
@@ -118,8 +108,6 @@ class King < ChessPiece
 end
 
 class Knight < ChessPiece
-
-
   def to_s
     @color == :white ? "♘" : "♞"
   end
@@ -135,7 +123,6 @@ class Knight < ChessPiece
 end
 
 class Pawn < ChessPiece
-
   def to_s
     @color == :white ? "♙" : "♟"
   end
@@ -181,6 +168,4 @@ class Pawn < ChessPiece
   def not_moved_yet?
     @position[0] == start_row
   end
-
-
 end

@@ -5,7 +5,6 @@ require './chess_pieces.rb'
 class Board
   attr_accessor :pieces
 
-  SIZE = 8
   def initialize
     spawn_pieces
   end
@@ -33,8 +32,8 @@ class Board
   end
 
   def display_board
-    display = (0...SIZE).map do |i|
-      (0...SIZE).map do |j|
+    display = (0...8).map do |i|
+      (0...8).map do |j|
         object_there = what_is_at([i , j])
         object_there ? object_there.to_s : " "
       end
@@ -91,8 +90,8 @@ class Board
   end
 
   def spawn_pawns
-    SIZE.times { |i| @pieces << Pawn.new([1, i], :white, self)}
-    SIZE.times { |i| @pieces << Pawn.new([6, i], :black, self)}
+    8.times { |i| @pieces << Pawn.new([1, i], :white, self)}
+    8.times { |i| @pieces << Pawn.new([6, i], :black, self)}
   end
 
   def promote(piece)
@@ -113,7 +112,7 @@ class Board
 
   def coord_on_board?(coord)
     y, x = coord
-    y.between?(0, SIZE - 1) && x.between?(0, SIZE - 1)
+    y.between?(0, 7) && x.between?(0, 7)
   end
 
   def kill(piece)

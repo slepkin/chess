@@ -1,31 +1,33 @@
 # encoding: UTF-8
 require './chessboard.rb'
 require './chess_pieces.rb'
-require 'debugger'
+require 'yaml'
 
 class Game
+
+  attr_reader :board, :player_turn
+
   def initialize
     @board = Board.new
     @white_player = HumanPlayer.new(:white)
     @black_player = HumanPlayer.new(:black)
+    @current_color = :black
   end
 
-
   def play
-    player_turn = :black
     puts "Welcome to chess!"
 
-    until @board.game_ended_by?(player_turn)
-      player_turn = toggle_color(player_turn)
+    until @board.game_ended_by?(@current_color)
+      @current_color = toggle_color(@current_color)
 
-      if player_turn == :white
+      if @current_color == :white
         turn_of(@white_player)
       else
         turn_of(@black_player)
       end
     end
 
-    game_over(player_turn)
+    game_over(@current_color)
   end
 
 
@@ -45,16 +47,26 @@ class Game
     end
   end
 
+  def save_game
+    save_str = self.to_yaml
+    File.open("chess.save","w"){ |f| f.puts(save_str) }
+  end
+
+  def load_game
+    load_str = File.read("chess.save")
+    temp_game = YAML::load(load_str)
+    @board = temp_game.board
+    @current_color = toggle_color(temp_game.player_turn)
+  end
+
   def turn_of(player)
-    color = player.color
     @board.display_board
-    puts "Check" if @board.in_check?(color)
-    puts "#{color.to_s.upcase} TURN"
+    puts "Check" if @board.in_check?(@current_color)
+    puts "#{@current_color.to_s.upcase} TURN"
 
     begin
       move = player.make_move
-      valid_input_check(move, color)
-      @board.move_and_kill(*move)
+      process_input(move)
     rescue MoveError => e
       puts e.message
       puts "Please try again."
@@ -63,17 +75,31 @@ class Game
     end
   end
 
-  def valid_input_check(move, color)
+  def process_input(move)
+    case move
+    when :save
+      save_game
+    when :load
+      load_game
+    when :quit
+      abort('Thanks for playing!')
+    else
+      valid_input_check(move)
+      @board.move_and_kill(*move)
+    end
+  end
+
+  def valid_input_check(move)
     if @board.what_is_at(move[0]).nil?
       raise MoveError.new "There's no piece there."
     end
-    unless color == @board.what_is_at(move[0]).color
+    unless @current_color == @board.what_is_at(move[0]).color
       raise MoveError.new "That's not your piece."
     end
-    unless @board.legal_move?(*move, color)
+    unless @board.legal_move?(*move, @current_color)
       raise MoveError.new "Illegal move."
     end
-    if @board.causes_check?(*move, color)
+    if @board.causes_check?(*move, @current_color)
       raise MoveError.new "This will put you in check."
     end
   end
@@ -86,18 +112,29 @@ class HumanPlayer
     @color = color
   end
 
-  def make_move
-    gets.chomp.split(",").map{|str| parse(str)}
+  def make_move #refactor this
+    puts "Enter coordinates, of form 'f2,a1', or 'save', 'load', or 'quit'"
+    command_parse(gets.chomp)
   end
 
   private
 
-  def parse(str)
-    if str.chomp == "quit" || str.chomp == "exit"
-      abort('Thanks for playing!')
-    end
+  def coord_parse(str)
     chars = str.split(//)
     [chars[1].to_i-1, chars[0].ord - 97]
+  end
+
+  def command_parse(command)
+    case command
+    when 'save'
+      :save
+    when 'load'
+      :load
+    when 'quit', 'exit'
+      :quit
+    else
+      command.split(",").map{|str| coord_parse(str)}
+    end
   end
 end
 
