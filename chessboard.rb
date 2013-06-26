@@ -34,7 +34,7 @@ class Board
     end_piece = what_is_at(endpoint)
     empty_or_opposite_color?(color, endpoint) && \
       (piece.is_a?(Knight) || empty_path?(startpoint,endpoint)) &&\
-      piece.in_range?(endpoint)#&& !causes_check?(startpoint, endpoint, color)
+      piece.in_range?(endpoint)
   end
 
   def move_and_kill(startpoint, endpoint)
@@ -92,13 +92,8 @@ class Board
   end
 
   def empty_path?(startpoint, endpoint)
-    begin
-      path = path(startpoint, endpoint)
-    rescue ArgumentError => e
-      #puts e.message
-      return false
-    end
-      path.all?{|pos| what_is_at(pos).nil?}
+    path = path(startpoint, endpoint)
+    path.all?{|pos| what_is_at(pos).nil?}
   end
 
   def path(startpoint, endpoint)
@@ -106,20 +101,18 @@ class Board
     y1, x1 = startpoint
     y2, x2 = endpoint
     step = [y2 - y1, x2 - x1]
+    magnitude = step.max_by { |coord| coord.abs }
+    unit_step = divide_vector(step, magnitude)
 
-    unless step.include?(0) || step[0].abs == step[1].abs
-      #p "Argument raised"
-      raise ArgumentError.new "Path must call horiz, vert, or diagonal line"
-    end
-
-    magnitude = step.find {|substep| substep != 0}.abs
-
-    step.map!{ |substep| substep / magnitude}
-    (magnitude - 1).times do |step_size|
-      path << [y1 + (step_size + 1) * step[0], x1 + (step_size + 1) * step[1]]
+    (1...magnitude).each do |step_number|
+      path << [y1 + step_number * unit_step[0], x1 + step_number * unit_step[1]]
     end
 
     path
+  end
+
+  def divide_vector(arr, magnitude)
+    arr.map{ |coord| coord / magnitude }
   end
 
   def in_check?(king_color)
