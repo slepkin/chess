@@ -11,28 +11,22 @@ class Board
   end
 
   def spawn_pieces
-    []
+    spawn_backrows
+    spawn_pawns
+  end
+
+  def spawn_backrows
+    piece_types = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
     @pieces = Set.new
-    @pieces << Queen.new([0,3], :white, self)
-    @pieces << Queen.new([7,3], :black, self)
-    @pieces << King.new([0,4], :white, self)
-    @pieces << King.new([7,4], :black, self)
-    @pieces << Bishop.new([0,2], :white, self)
-    @pieces << Bishop.new([0,5], :white, self)
-    @pieces << Bishop.new([7,2], :black, self)
-    @pieces << Bishop.new([7,5], :black, self)
-    @pieces << Rook.new([0,0], :white, self)
-    @pieces << Rook.new([0,7], :white, self)
-    @pieces << Rook.new([7,0], :black, self)
-    @pieces << Rook.new([7,7], :black, self)
-    @pieces << Knight.new([0,1], :white, self)
-    @pieces << Knight.new([0,6], :white, self)
-    @pieces << Knight.new([7,1], :black, self)
-    @pieces << Knight.new([7,6], :black, self)
+    piece_types.each_with_index do |type,i|
+      @pieces << type.new([7, i], :black,self)
+      @pieces << type.new([0, i], :white,self)
+    end
+  end
 
-    SIZE.times { |i| @pieces << Pawn.new([1,i],:white,self)}
-    SIZE.times { |i| @pieces << Pawn.new([6,i],:black,self)}
-
+  def spawn_pawns
+    SIZE.times { |i| @pieces << Pawn.new([1,i], :white,self)}
+    SIZE.times { |i| @pieces << Pawn.new([6,i], :black,self)}
   end
 
   def legal_move?(startpoint, endpoint, color)
@@ -71,6 +65,10 @@ class Board
     end
     puts "  └"+ "───┴" * 7 + "───┘"
     nil
+  end
+
+  def in_checkmate?(king_color)
+    in_check?(king_color) && every_move_causes_check(king_color)
   end
 
   def dup
@@ -142,7 +140,7 @@ class Board
     temp_board.in_check?(color)
   end
 
-  def in_checkmate?(king_color)
+  def every_move_causes_check?(king_color)
     @pieces.select {|piece| piece.color == king_color }.all? do |piece|
       piece.possible_moves.all? do |possible_move|
         causes_check?(piece.position, possible_move, king_color)
@@ -150,9 +148,14 @@ class Board
     end
   end
 
+  def only_kings?
+    @pieces.size == 2
+  end
+
   # will allow for future additional ending conditions
-  def game_ended_by?(last_player)
-    next_player = (last_player == :white) ? :black : :white
-    in_checkmate?(next_player) # || in_stalemate?
+  def game_ended_by?(last_color)
+    next_color = (last_color == :white) ? :black : :white
+    every_move_causes_check?(next_color) || only_kings?
+    # add other types of stalemate
   end
 end

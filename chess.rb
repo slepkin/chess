@@ -32,9 +32,14 @@ class Game
     (color == :white) ? :black : :white
   end
 
-  def game_over(winning_player)
+  def game_over(winning_color)
     @board.display_board
-    puts "Checkmate! #{winning_player.to_s.capitalize} Wins!"
+    losing_color = toggle_color(winning_color)
+    if @board.in_check?(losing_color)
+      puts "Checkmate! #{winning_color.to_s.capitalize} Wins!"
+    else
+      puts "Stalemate."
+    end
   end
 
   def turn_of(player)

@@ -125,7 +125,7 @@ end
 class Pawn < ChessPiece
   def initialize(position,color,board)
     super(position,color,board)
-    @sign = @color == :black ? -1 : 1
+    @direction = (@color == :black) ? -1 : 1
     @start_row = @color == :black ? 6 : 1
   end
 
@@ -135,19 +135,33 @@ class Pawn < ChessPiece
 
   def in_range?(endpoint)
     y1, x1 = @position
-
     y2, x2 = endpoint
     dy, dx = y2 - y1, x2 - x1
     end_object = @board.what_is_at(endpoint)
-    case [dy, dx]
-    when [@sign, 0]
-      end_object.nil?
-    when [2 * @sign, 0]
-      @position[0] == @start_row && end_object.nil?
-    when [@sign, 1], [@sign, -1]
-      end_object && end_object.color != color
-    else
-      false
-    end
+
+    return end_object.nil? if one_forward?(dy,dx)
+    return not_moved_yet? && end_object.nil? if two_forward?(dy,dx)
+    return end_object && end_object.color != color if diagonal?(dy,dx)
+    false
   end
+
+  private
+
+  def one_forward?(dy,dx)
+    [dy, dx] == [@direction, 0]
+  end
+
+  def two_forward?(dy,dx)
+    [dy, dx] == [2 * @direction, 0]
+  end
+
+  def diagonal?(dy,dx)
+    [dy, dx.abs] == [@direction, 1]
+  end
+
+  def not_moved_yet?
+    @position[0] == @start_row
+  end
+
+
 end
