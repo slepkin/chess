@@ -13,6 +13,7 @@ class Board
   def legal_move?(startpoint, endpoint, color)
     piece = what_is_at(startpoint)
     end_piece = what_is_at(endpoint)
+
     empty_or_opposite_color?(color, endpoint) && \
       (piece.is_a?(Knight) || empty_path?(startpoint, endpoint)) &&\
       piece.in_range?(endpoint)
@@ -52,8 +53,7 @@ class Board
   def in_check?(king_color)
     king = @pieces.find{ |piece| piece.color == king_color && piece.class == King}
     k_pos = king.position
-    other_color = king_color == :black ? :white : :black
-
+    other_color = (king_color == :black) ? :white : :black
     @pieces.select{ |piece| piece.color == other_color}.any? do |piece|
       legal_move?(piece.position, k_pos, other_color)
     end
@@ -133,7 +133,7 @@ class Board
   def path(startpoint, endpoint)
     y, x = startpoint
     step = [endpoint[0] - y, endpoint[1] - x]
-    magnitude = step.max_by { |coord| coord.abs }
+    magnitude = step.max_by { |coord| coord.abs }.abs
     unit_step = divide_vector(step, magnitude)
 
     (1...magnitude).map do |step_number|

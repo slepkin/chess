@@ -1,6 +1,11 @@
 # encoding: UTF-8
 
 class ChessPiece
+  NORM_STEPS = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+  DIAG_STEPS = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+  KNIGHT_STEPS = [[2, 1], [2, -1], [-2, -1], [-2, 1],
+                  [1, 2], [1, -2], [-1, 2], [-1, -2]]
+
   attr_accessor :position
   attr_reader :color
 
@@ -36,17 +41,21 @@ class ChessPiece
 end
 
 class Rider < ChessPiece
-  def initialize(position, color, board)
-    super(position, color, board)
-    @steps = (-1..1).flat_map do |i|
-    (-1..1).map{|j| [i, j]}
-    end - [[0, 0]]
+  # def initialize(position, color, board)
+  #   super(position, color, board)
+  #   @steps = (-1..1).flat_map do |i|
+  #   (-1..1).map{|j| [i, j]}
+  #   end - [[0, 0]]
+  # end
+
+  def steps
+    []
   end
 
   def in_range?(endpoint)
     y1, x1 = @position
 
-    @steps.any? do |step|
+    steps.any? do |step|
       dy, dx = step
       (1...8).any? do |step_size|
         [y1 + step_size * dy, x1 + step_size * dx] == endpoint
@@ -56,11 +65,8 @@ class Rider < ChessPiece
 end
 
 class Queen < Rider
-  def initialize(position, color, board)
-    super(position, color, board)
-    @steps = (-1..1).flat_map do |i|
-      (-1..1).map{|j| [i, j]}
-    end - [[0, 0]]
+  def steps
+    NORM_STEPS + DIAG_STEPS
   end
 
   def to_s
@@ -69,6 +75,11 @@ class Queen < Rider
 end
 
 class Rook < Rider
+
+  def steps
+    NORM_STEPS
+  end
+
   def initialize(position, color, board)
     super(position, color, board)
     @steps = [[1, 0], [0, 1], [-1, 0], [0, -1]]
@@ -80,9 +91,9 @@ class Rook < Rider
 end
 
 class Bishop < Rider
-  def initialize(position, color, board)
-    super(position, color, board)
-    @steps = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+
+  def steps
+    DIAG_STEPS
   end
 
   def to_s
@@ -91,9 +102,6 @@ class Bishop < Rider
 end
 
 class King < ChessPiece
-  STEPS = (-1..1).flat_map do |i|
-    (-1..1).map{|j| [i, j]}
-  end - [[0, 0]]
 
   def to_s
     @color == :white ? "♔" : "♚"
@@ -102,7 +110,7 @@ class King < ChessPiece
   def in_range?(endpoint)
     y1, x1 = @position
 
-    STEPS.any? do |step|
+    (NORM_STEPS + DIAG_STEPS).any? do |step|
       dy, dx = step
       [y1 + dy, x1 + dx] == endpoint
     end
@@ -110,7 +118,7 @@ class King < ChessPiece
 end
 
 class Knight < ChessPiece
-  STEPS = [[2, 1], [2, -1], [-2, -1], [-2, 1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
+
 
   def to_s
     @color == :white ? "♘" : "♞"
@@ -119,7 +127,7 @@ class Knight < ChessPiece
   def in_range?(endpoint)
     y1, x1 = @position
 
-    STEPS.any? do |step|
+    KNIGHT_STEPS.any? do |step|
       dy, dx = step
       [y1 + dy, x1 + dx] == endpoint
     end
