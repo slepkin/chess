@@ -74,7 +74,7 @@ class Game
     end
   end
 
-  def process_input(move) #Does this smell?
+  def process_input(move)
     case move
     when :save
       save_game
